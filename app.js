@@ -59,16 +59,22 @@ const server = http.createServer((req, res) => {
             const parsedBody = Buffer.concat(body).toString();
             console.log("parsedBody ",  parsedBody);
             const message = parsedBody.split('=')[1]; // split on `=` separator and take value (e.g. index 1)
-            fs.writeFileSync('message.txt', message);  // write input value to file 
+            fs.writeFile('message.txt', message, error => {
+                if (error){
+                    res.json(error);
+                    res.message("Error occured")
+                    console.log("Error during write ", error)
+                }
+                res.statusCode = 302;  //only sent when file write complete
+                // res.setHeader('Location', '/');  // Cannot set headers after they are sent to the client
+                console.log(res.StatusCode)
+                return res.end(writeDate_CB); // last parameter is passed a CB
+            });
         })
-
-        res.statusCode = 302;
-        res.setHeader('Location', '/');  // writes metadata
-        return res.end(dateStr); // last parameter is passed a CB
-
     }
 
     // without res.end(), this never gets sent and server keeps running
+    res.setHeader('Location', '/');  // writes metadata
     res.setHeader('Content-Type', 'text/html');
     res.write(`<html><head><title> First Node Page </title></head><body><h1> Node Server Running ${count}</h1> </body></html>`);
     console.log("\t\t ", count)
