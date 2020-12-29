@@ -1,0 +1,24 @@
+{
+  "name": "node_exp1",
+  "version": "1.0.0",
+  "description": "1. Run node app.js in terminal. No reponse until the browser is launched at localhost:3000",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "start-server": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevekutz/node_exp1.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stevekutz/node_exp1/issues"
+  },
+  "homepage": "https://github.com/stevekutz/node_exp1#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
+}

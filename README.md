@@ -24,7 +24,7 @@
     });
     ~~~
 
-2. Verify terminal out for req data
+2. Verify terminal output for req data
     ~~~ bash
     Req obj  url, method, & headers section
     
@@ -51,8 +51,8 @@
     ~~~
 
 3. Verify browser renders HTML
-<img src = "readme_img/Node_write_html.png"/>
 
+    <img src = "readme_img/Node_write_html.png" width = "50%" />
 
 #### Setting up routes and passing in data to a file
 
@@ -72,86 +72,87 @@
    - A count variable is used to verify how the `requestListener` behaves
    - The `dateStr` callback is passed to the response process within the if statement 
    - The final response process is exited with `res.end()`
-       ~~~ js
-       const http = require('http');   // Node's way of importing modules, files
 
-       const fs = require('fs')
+        ~~~ js
+        const http = require('http');   // Node's way of importing modules, files
 
-       let count = 0;
+        const fs = require('fs')
 
-       // Date is imported by default in Node, import NOT needed
-       // return date is MM/DD/YYYY format
-       const writeDate_CB = () => {    
-           let dateObj = new Date;
-           let year = dateObj.getFullYear();
-           let month = ('1' + (dateObj.getMonth() + 1)).slice(-2);  // e.g. 03, 10  starts at 0
-           let day = ('0' + dateObj.getDate()).slice(-2);
+        let count = 0;
 
-           let dateStr = month + '/' + day + '/' +  year
-           console.log(dateStr)
-           return dateStr
-       }
+        // Date is imported by default in Node, import NOT needed
+        // return date is MM/DD/YYYY format
+        const writeDate_CB = () => {    
+            let dateObj = new Date;
+            let year = dateObj.getFullYear();
+            let month = ('1' + (dateObj.getMonth() + 1)).slice(-2);  // e.g. 03, 10  starts at 0
+            let day = ('0' + dateObj.getDate()).slice(-2);
 
-       // createServer contains a `requestListener` function
-       const server = http.createServer((req, res) => {
-           const {url, method, headers} = req    
-           count += 1
+            let dateStr = month + '/' + day + '/' +  year
+            console.log(dateStr)
+            return dateStr
+        }
 
-           // an inefficient way to write HTML to browser 
-           //    action points to route where request data is sent
-           // form method defines POST request with data sent to router message
-           // form tag looks for other data. From input, any input defined with name attribute gets attached as key-value pairs to body of request
-           // key is name & value is user input
-           if (url ==='/') {
-               res.write('<html><head><title> First Node Page </title></head>');
-               res.write('<body><form action = "/message" method = "POST"><input type = "text" name = "message"/><button type = "Submit"> Send </button> </form></body>');
-               res.write('</html>');
-               // Indicates response message complete. Node send response to client where browser looks at header to know how to render
-               // response.end() MUST be called on each response !!!
-               return res.end(); 
-           }
+        // createServer contains a `requestListener` function
+        const server = http.createServer((req, res) => {
+            const {url, method, headers} = req    
+            count += 1
 
-           console.log( "Req obj  url, method, & headers section")  
-           console.log(" \n url => ", url);
-           console.log(" \n method => ", method);
-           console.log(" \n headers => ", headers);
+            // an inefficient way to write HTML to browser 
+            //    action points to route where request data is sent
+            // form method defines POST request with data sent to router message
+            // form tag looks for other data. From input, any input defined with name attribute gets attached as key-value pairs to body of request
+            // key is name & value is user input
+            if (url ==='/') {
+                res.write('<html><head><title> First Node Page </title></head>');
+                res.write('<body><form action = "/message" method = "POST"><input type = "text" name = "message"/><button type = "Submit"> Send </button> </form></body>');
+                res.write('</html>');
+                // Indicates response message complete. Node send response to client where browser looks at header to know how to render
+                // response.end() MUST be called on each response !!!
+                return res.end(); 
+            }
 
-           // if route matches, write to file and end
-           if (url === '/message' && method === 'POST') {
-               const body = []
-               
-               // `on` is an event listener, looks for `data` event and then runs the listener callback function
-               //  `chunk` is a part of the data(either a string of part of the `Buffer`)
-               req.on('data', (chunk) => {
-                   console.log(chunk)
-                   body.push(chunk)
-               });
+            console.log( "Req obj  url, method, & headers section")  
+            console.log(" \n url => ", url);
+            console.log(" \n method => ", method);
+            console.log(" \n headers => ", headers);
 
-               // `on` is an event listener, looks for `end` event and then runs the listener callback function
-               //    event NOT emitted until no more data is available
-               // global Buffer class is used to manage data transfers(e.g. chunks of data from entire amount of data) from a stream of data
-               req.on('end', () => {
-                   const parsedBody = Buffer.concat(body).toString();
-                   console.log("parsedBody ",  parsedBody);
-                   const message = parsedBody.split('=')[1]; // split on `=` separator and take value (e.g. index 1)
-                   fs.writeFileSync('message.txt', message);  // write input value to file 
-               })
+            // if route matches, write to file and end
+            if (url === '/message' && method === 'POST') {
+                const body = []
+                
+                // `on` is an event listener, looks for `data` event and then runs the listener callback function
+                //  `chunk` is a part of the data(either a string of part of the `Buffer`)
+                req.on('data', (chunk) => {
+                    console.log(chunk)
+                    body.push(chunk)
+                });
 
-               res.statusCode = 302;
-               res.setHeader('Location', '/');  // writes metadata
-               return res.end(writeDate_CB); // last parameter is passed a CB
+                // `on` is an event listener, looks for `end` event and then runs the listener callback function
+                //    event NOT emitted until no more data is available
+                // global Buffer class is used to manage data transfers(e.g. chunks of data from entire amount of data) from a stream of data
+                req.on('end', () => {
+                    const parsedBody = Buffer.concat(body).toString();
+                    console.log("parsedBody ",  parsedBody);
+                    const message = parsedBody.split('=')[1]; // split on `=` separator and take value (e.g. index 1)
+                    fs.writeFileSync('message.txt', message);  // write input value to file 
+                })
 
-           }
+                res.statusCode = 302;
+                res.setHeader('Location', '/');  // writes metadata
+                return res.end(writeDate_CB); // last parameter is passed a CB
 
-           // without res.end(), this never gets sent and server keeps running
-           res.setHeader('Content-Type', 'text/html');
-           res.write(`<html><head><title> First Node Page </title></head><body><h1> Node Server Running ${count}</h1> </body></html>`);
-           console.log("\t\t ", count)
-           res.end();
-       });
+            }
 
-       server.listen(3000);
-       ~~~
+            // without res.end(), this never gets sent and server keeps running
+            res.setHeader('Content-Type', 'text/html');
+            res.write(`<html><head><title> First Node Page </title></head><body><h1> Node Server Running ${count}</h1> </body></html>`);
+            console.log("\t\t ", count)
+            res.end();
+        });
+
+        server.listen(3000);
+        ~~~
 
 2. Rewrite the event listener looking for the `end` event to use an asynchronous file write.
 
@@ -181,7 +182,7 @@
 
 ##### Create file dedicated to routing logic
 
-1. Create `routes.js` in same directory as `app.js` (MUST share same directory) and move all routing logic.
+3. Create `routes.js` in same directory as `app.js` (MUST share same directory) and move all routing logic.
 
     - If only a single function is in `routes.js`, the following syntax would suffice
 
@@ -219,7 +220,6 @@
         server.listen(3000);
         ~~~
 
-
         ~~~ js
         // routes.js
         const fs = require('fs')
@@ -238,8 +238,7 @@
             console.log(dateStr)
             return dateStr
         } 
-        
-        
+                
         const requestHandler = (req, res) => {
             const {url, method, headers} = req
 
@@ -323,5 +322,49 @@
 
         // }
         ~~~
-
   
+4) Setup `package.json` 
+
+    - From terminal run `npm init`
+    - Update the `scripts` section
+
+        ~~~ json
+        "scripts": {
+            "test": "echo \"Error: no test specified\" && exit 1",
+            "start": "node app.js",
+            "start-server": "node app.js"
+        },
+        ~~~
+
+    - Running `npm start` will launch server. `start` is special and does not need `run`
+    - Running `npm run start-server` will launch server. Note than `run` must be included
+
+5) Install 3rd party packages
+
+    - `--save-dev` saves as a development dependency, runs only in dev mode
+    - `--save` saves as a production depdency, runs only in production environment
+    - `-g` does not save dependency to project but instead installs globally on machine
+    - Run the following:
+
+        ~~~ bash
+        npm install nodemon --save-dev
+        ~~~
+    - this creates `package-lock.json` that represents the dependency tree of the project's installed packages
+    - packages are installed in the `node_modules` folder
+    - note that this now shows as a dev dependency inside `package.json`
+
+    ~~~ json
+    "devDependencies": {
+        "nodemon": "^2.0.6"
+    }
+    ~~~
+
+    - update `package.json` to use `nodemon`. This cannot be run in terminal unless `nodemon` was installed globally.
+
+        ~~~ json
+        "scripts": {
+            "test": "echo \"Error: no test specified\" && exit 1",
+            "start": "nodemon app.js",
+            "start-server": "node app.js"
+        },
+        ~~~
